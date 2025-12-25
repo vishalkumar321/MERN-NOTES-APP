@@ -451,55 +451,99 @@
 // UPDATE BACKEND CORS CONFIG
 // index.js (Backend Entry Point)
 
-require("dotenv").config();
+// require("dotenv").config();
+// const express = require("express");
+// const mongoose = require("mongoose");
+// const cors = require("cors");
+
+// const authRoutes = require("./routes/authRoutes");
+// const noteRoutes = require("./routes/noteRoutes");
+// const errorHandler = require("./middleware/errorHandler");
+// const authMiddleware = require("./middleware/authMiddleware");
+
+// const app = express();
+
+// // ========= CORS CONFIG =========
+// // Allow both local & deployed frontend
+// const allowedOrigins = [
+//   "http://localhost:3000",
+//   "https://mern-notes-frontend-5je4.onrender.com",
+// ];
+
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // allow requests with no origin (like mobile apps or curl)
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("CORS blocked by server: " + origin));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
+// // ========= Body Parser =========
+// app.use(express.json());
+
+// // ========= Routes =========
+// app.use("/auth", authRoutes); // signup & login
+// app.use("/notes", authMiddleware, noteRoutes); // notes CRUD (protected)
+
+// // ========= Error Handling Middleware =========
+// app.use(errorHandler);
+
+// // ========= DB Connection =========
+// mongoose
+//   .connect(process.env.MONGO_URI)
+//   .then(() => console.log("MongoDB connected"))
+//   .catch((err) => console.log("MongoDB connection error:", err));
+
+// // ========= Server =========
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const errorHandler = require("./middleware/errorHandler");
-const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
+app.use(express.json());
 
-// ========= CORS CONFIG =========
-// Allow both local & deployed frontend
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://mern-notes-frontend-5je4.onrender.com",
-];
-
+// ===== CORS FIX (IMPORTANT) =====
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS blocked by server: " + origin));
-      }
-    },
+    origin: [
+      "http://localhost:3000",
+      "https://mern-notes-frontend-an40.onrender.com", // your deployed frontend
+    ],
+    methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
 );
 
-// ========= Body Parser =========
-app.use(express.json());
+// ===== Routes =====
+app.use("/auth", authRoutes);
+app.use("/notes", noteRoutes);
 
-// ========= Routes =========
-app.use("/auth", authRoutes); // signup & login
-app.use("/notes", authMiddleware, noteRoutes); // notes CRUD (protected)
-
-// ========= Error Handling Middleware =========
+// ===== Error Handler =====
 app.use(errorHandler);
 
-// ========= DB Connection =========
+// ===== MongoDB Connection =====
+const mongoURI = process.env.MONGO_URI;
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(mongoURI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 
-// ========= Server =========
+// ===== Server Start =====
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
