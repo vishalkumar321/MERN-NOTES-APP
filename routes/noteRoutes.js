@@ -36,20 +36,36 @@
 
 // module.exports = router;
 
-const express = require("express");
-const router = express.Router();
+// const express = require("express");
+// const router = express.Router();
+// const {
+//   getNotes,
+//   createNote,
+//   updateNote,
+//   deleteNote,
+// } = require("../controllers/noteController");
+
+// const authMiddleware = require("../middleware/authMiddleware");
+
+// router.get("/", authMiddleware, getNotes);
+// router.post("/", authMiddleware, createNote);
+// router.put("/:id", authMiddleware, updateNote);
+// router.delete("/:id", authMiddleware, deleteNote);
+
+// module.exports = router;
+
+const router = require("express").Router();
+const auth = require("../middleware/authMiddleware");
 const {
   getNotes,
-  createNote,
+  addNote,
   updateNote,
   deleteNote,
 } = require("../controllers/noteController");
 
-const authMiddleware = require("../middleware/authMiddleware");
-
-router.get("/", authMiddleware, getNotes);
-router.post("/", authMiddleware, createNote);
-router.put("/:id", authMiddleware, updateNote);
-router.delete("/:id", authMiddleware, deleteNote);
+router.get("/", auth, getNotes);
+router.post("/", auth, addNote);
+router.put("/:id", auth, updateNote);
+router.delete("/:id", auth, deleteNote);
 
 module.exports = router;

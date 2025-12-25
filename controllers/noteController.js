@@ -256,31 +256,31 @@
 const Note = require("../models/Note");
 
 exports.getNotes = async (req, res) => {
-  const notes = await Note.find({ user: req.userId });
+  const notes = await Note.find({ userId: req.userId }).sort({ createdAt: -1 });
   res.json(notes);
 };
 
-exports.createNote = async (req, res) => {
-  const note = await Note.create({
-    title: req.body.title,
-    description: req.body.description,
-    user: req.userId,
-  });
+exports.addNote = async (req, res) => {
+  const { title, description } = req.body;
+  const note = await Note.create({ title, description, userId: req.userId });
   res.json(note);
 };
 
 exports.updateNote = async (req, res) => {
-  const note = await Note.findById(req.params.id);
-  if (!note) return res.status(404).json({ error: "Note not found" });
+  const { id } = req.params;
+  const { title, description } = req.body;
 
-  note.title = req.body.title;
-  note.description = req.body.description;
-  await note.save();
+  const updated = await Note.findOneAndUpdate(
+    { _id: id, userId: req.userId },
+    { title, description },
+    { new: true }
+  );
 
-  res.json(note);
+  res.json(updated);
 };
 
 exports.deleteNote = async (req, res) => {
-  await Note.findByIdAndDelete(req.params.id);
+  const { id } = req.params;
+  await Note.findOneAndDelete({ _id: id, userId: req.userId });
   res.json({ message: "Note deleted" });
 };

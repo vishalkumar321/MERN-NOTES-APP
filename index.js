@@ -504,50 +504,6 @@
 // const PORT = process.env.PORT || 5000;
 // app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// const express = require("express");
-// const mongoose = require("mongoose");
-// const cors = require("cors");
-// require("dotenv").config();
-
-// const authRoutes = require("./routes/authRoutes");
-// const noteRoutes = require("./routes/noteRoutes");
-// const errorHandler = require("./middleware/errorHandler");
-
-// const app = express();
-// app.use(express.json());
-
-// // ===== CORS FIX (IMPORTANT) =====
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:3000",
-//       "https://mern-notes-frontend-an40.onrender.com", // your deployed frontend
-//     ],
-//     methods: "GET,POST,PUT,DELETE",
-//     credentials: true,
-//   })
-// );
-
-// // ===== Routes =====
-// app.use("/auth", authRoutes);
-// app.use("/notes", noteRoutes);
-
-// // ===== Error Handler =====
-// app.use(errorHandler);
-
-// // ===== MongoDB Connection =====
-// const mongoURI = process.env.MONGO_URI;
-// mongoose
-//   .connect(mongoURI)
-//   .then(() => console.log("MongoDB connected"))
-//   .catch((err) => console.log("MongoDB connection error:", err));
-
-// // ===== Server Start =====
-// const PORT = process.env.PORT || 5000;
-// app.listen(PORT, () => {
-//   console.log(`Server running on port ${PORT}`);
-// });
-
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -555,28 +511,33 @@ const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
 const noteRoutes = require("./routes/noteRoutes");
+const errorMiddleware = require("./middleware/errorMiddleware");
 
 const app = express();
 
-app.use(express.json());
+// CORS
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://mern-notes-frontend-an40.onrender.com",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: [process.env.CLIENT_URL, "http://localhost:3000"],
     credentials: true,
   })
 );
 
-// routes
+app.use(express.json());
+
+// Routes
 app.use("/auth", authRoutes);
 app.use("/notes", noteRoutes);
 
+// Error Handler
+app.use(errorMiddleware);
+
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log("MongoDB error:", err));
+  .catch((err) => console.log("MongoDB connection error:", err));
 
-app.listen(process.env.PORT || 5000, () => console.log("Server running"));
+// Start Server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
